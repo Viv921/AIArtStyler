@@ -1,0 +1,29 @@
+# config.py
+
+import torch
+
+# -- Paths --
+DATA_DIR = "../dataset/data"
+MODEL_PATH = "../models/art_classifier_lore_accurate_(epoch_4).pth"
+
+# -- Compute --
+DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+
+# -- Dataset --
+# ImageNet stats for normalization
+NORM_MEAN = [0.485, 0.456, 0.406]
+NORM_STD = [0.229, 0.224, 0.225]
+IMG_SIZE = 256
+CROP_SIZE = 224  # Standard for ImageNet models
+
+# -- Data Splitting --
+
+TRAIN_SPLIT = 0.7
+VAL_SPLIT = 0.15
+
+
+# -- Model & Training --
+NUM_CLASSES = 13
+BATCH_SIZE = 64
+NUM_EPOCHS = 10
+LEARNING_RATE = 4e-4
