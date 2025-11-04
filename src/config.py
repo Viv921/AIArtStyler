@@ -4,7 +4,7 @@ import torch
 
 # -- Paths --
 DATA_DIR = "../dataset/data"
-MODEL_PATH = "../models/art_classifier_lore_accurate_(epoch_4).pth"
+MODEL_PATH = "../models/art_classifier.pth"
 
 # -- Compute --
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
