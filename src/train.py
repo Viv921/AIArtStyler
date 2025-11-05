@@ -18,7 +18,6 @@ def train_step(model, loader, optimizer, loss_fn, device):
     correct_preds = 0
     total_samples = 0
 
-    # Use tqdm for a progress bar
     loop = tqdm(loader, desc="Training", leave=True)
     for images, labels in loop:
         images, labels = images.to(device), labels.to(device)
@@ -32,13 +31,11 @@ def train_step(model, loader, optimizer, loss_fn, device):
         loss.backward()
         optimizer.step()
 
-        # Update metrics
         total_loss += loss.item() * images.size(0)
         _, predicted = torch.max(outputs.data, 1)
         correct_preds += (predicted == labels).sum().item()
         total_samples += labels.size(0)
 
-        # Update progress bar description
         loop.set_postfix(
             loss=loss.item(),
             acc=(correct_preds / total_samples) * 100
@@ -67,13 +64,11 @@ def validate_step(model, loader, loss_fn, device):
             outputs = model(images)
             loss = loss_fn(outputs, labels)
 
-            # Update metrics
             total_loss += loss.item() * images.size(0)
             _, predicted = torch.max(outputs.data, 1)
             correct_preds += (predicted == labels).sum().item()
             total_samples += labels.size(0)
 
-            # Update progress bar description
             loop.set_postfix(
                 loss=loss.item(),
                 acc=(correct_preds / total_samples) * 100
@@ -91,24 +86,20 @@ def main():
     print("Starting training...")
     print(f"Device: {config.DEVICE}")
 
-    # 1. Get DataLoaders
     train_loader, val_loader, test_loader, class_names = dataset.get_dataloaders()
 
     if train_loader is None:
-        return  # Exit if dataset wasn't found
+        return
 
     print(f"Data loaded. Training on {len(train_loader.dataset)} images.")
 
-    # 2. Create Model
     clf_model = model.create_model()
 
-    # 3. Define Loss and Optimizer
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(clf_model.parameters(), lr=config.LEARNING_RATE)
 
     best_val_acc = 0.0
 
-    # 4. Training Loop
     for epoch in range(config.NUM_EPOCHS):
         print(f"\n--- Epoch {epoch + 1}/{config.NUM_EPOCHS} ---")
 
@@ -131,7 +122,6 @@ def main():
     print("\nTraining complete.")
     print(f"Best validation accuracy: {best_val_acc:.2f}%")
 
-    # 5. Final Test Evaluation
     print("Loading best model and evaluating on test set...")
     clf_model.load_state_dict(torch.load(config.MODEL_PATH))
 

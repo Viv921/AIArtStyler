@@ -20,7 +20,6 @@ def get_dataloaders():
         transforms.Normalize(mean=config.NORM_MEAN, std=config.NORM_STD)
     ])
 
-    # Validation/Test transform does not include augmentation
     val_test_transform = transforms.Compose([
         transforms.Resize((config.IMG_SIZE, config.IMG_SIZE)),
         transforms.CenterCrop(config.CROP_SIZE),
@@ -50,27 +49,20 @@ def get_dataloaders():
     val_size = int(config.VAL_SPLIT * total_size)
     test_size = total_size - train_size - val_size
 
-    # Split the dataset
-    # We use a fixed generator for reproducible splits
+
     train_dataset, val_dataset, test_dataset = random_split(
         full_dataset,
         [train_size, val_size, test_size],
         generator=torch.Generator().manual_seed(42)
     )
 
-    # IMPORTANT: Apply the correct transform to val/test splits
-    # The 'full_dataset' was initialized with 'train_transform'.
-    # We need to override the .dataset attribute for val and test splits
-    # to point to a new ImageFolder instance with the 'val_test_transform'.
 
-    # Create a new dataset instance for validation and testing
     val_test_dataset = datasets.ImageFolder(
         root=config.DATA_DIR,
         transform=val_test_transform
     )
 
-    # Manually assign the correct dataset (with the right transform)
-    # to the val_dataset and test_dataset subsets.
+
     val_dataset.dataset = val_test_dataset
     test_dataset.dataset = val_test_dataset
 
