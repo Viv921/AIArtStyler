@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.optim.lr_scheduler as lr_scheduler
 from tqdm import tqdm
 import config
 import model
@@ -98,6 +99,12 @@ def main():
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(clf_model.parameters(), lr=config.LEARNING_RATE)
 
+    scheduler = lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=config.NUM_EPOCHS,
+        eta_min=0
+    )
+
     best_val_acc = 0.0
 
     for epoch in range(config.NUM_EPOCHS):
@@ -113,11 +120,15 @@ def main():
         )
         print(f"Epoch {epoch + 1} Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
 
+        scheduler.step()
+
         # Save the best model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             torch.save(clf_model.state_dict(), config.MODEL_PATH)
             print(f"New best model saved! Val Acc: {val_acc:.2f}%")
+
+        print(f"Current LR: {optimizer.param_groups[0]['lr']:.8f}")
 
     print("\nTraining complete.")
     print(f"Best validation accuracy: {best_val_acc:.2f}%")

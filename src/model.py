@@ -8,28 +8,24 @@ import config
 
 def create_model(num_classes=config.NUM_CLASSES):
     """
-    Loads a pre-trained ResNet50 model and adapts it for fine-tuning
-    the last convolutional block (layer4) and the new FC layer.
+    Loads a pre-trained EfficientNet_B3 model and adapts it for fine-tuning.
     """
 
-    # 1. Load pre-trained ResNet50
-    model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
+    # Load pre-trained EfficientNet_B3
+    model = models.efficientnet_b3(weights=models.EfficientNet_B3_Weights.DEFAULT)
 
-    # 2. Freeze all parameters in the model initially
+    # Freeze all parameters in the model initially
     for param in model.parameters():
-        param.requires_grad = False
-
-    # 3. Unfreeze the parameters of the final convolutional block (
-    for param in model.layer4.parameters():
         param.requires_grad = True
 
-    # 4. Replace the final layer
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, num_classes)
+
+    num_ftrs = model.classifier[1].in_features
+
+    model.classifier[1] = nn.Linear(num_ftrs, num_classes)
 
     model = model.to(config.DEVICE)
 
-    print(f"Model: ResNet50 (fine-tuning 'layer4' and 'fc' layer)")
+    print(f"Model: EfficientNet_B3 (fine-tuning last block and classifier)")
     print(f"Output classes: {num_classes}")
     print(f"Device: {config.DEVICE}")
 
