@@ -25,7 +25,7 @@ def create_model(num_classes=config.NUM_CLASSES):
 
     model = model.to(config.DEVICE)
 
-    print(f"Model: EfficientNet_B3 (fine-tuning last block and classifier)")
+    print(f"Model: EfficientNet_B3 (full fine-tuning)")
     print(f"Output classes: {num_classes}")
     print(f"Device: {config.DEVICE}")
 

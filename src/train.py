@@ -96,8 +96,8 @@ def main():
 
     clf_model = model.create_model()
 
-    loss_fn = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(clf_model.parameters(), lr=config.LEARNING_RATE)
+    loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
+    optimizer = optim.AdamW(clf_model.parameters(), lr=config.LEARNING_RATE,   weight_decay= 1e-4)
 
     scheduler = lr_scheduler.CosineAnnealingLR(
         optimizer,
