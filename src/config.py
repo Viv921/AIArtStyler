@@ -4,7 +4,13 @@ import torch
 
 # -- Paths --
 DATA_DIR = "../dataset/data"
-MODEL_PATH = "../models/v1/art_classifier.pth"
+MODEL_PATH = "../models/classifiers/v1/art_classifier.pth"
+OUTPUT_DIR = "../outputs"  # Directory to save generated images
+
+# -- Generator --
+# Can be a Hugging Face model ID or a local path to a downloaded checkpoint/folder
+STABLE_DIFFUSION_CHECKPOINT = "../models/checkpoints/sd_xl_base_10.safetensors"
+STABLE_DIFFUSION_VAE = "../models/vae/sdxl_vae.safetensors"
 
 # -- Compute --
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
@@ -20,7 +26,7 @@ TRAIN_SPLIT = 0.7
 VAL_SPLIT = 0.15
 
 # -- Classes --
-# [Academic_Art, Anime, Art_Nouveau, Cubism, Cyberpunk, Expressionism, Neoclassicism, Primitivism, Renaissance, Rococo, Romanticism, Symbolism, Western_medieval]
+CLASSES = ["Academic_Art", "Anime", "Art_Nouveau", "Cubism", "Cyberpunk", "Expressionism", "Neoclassicism", "Primitivism", "Renaissance", "Rococo", "Romanticism", "Symbolism", "Western_medieval"]
 
 # -- Model & Training --
 NUM_CLASSES = 13

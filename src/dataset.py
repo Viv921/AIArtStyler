@@ -8,26 +8,11 @@ import config
 
 def get_dataloaders():
     """
-    Loads the WikiArt dataset, applies transformations, splits it,
+    Loads the dataset, applies transformations, splits it,
     and returns DataLoaders for train, val, and test sets.
     """
-    train_transform = transforms.Compose([
-        transforms.Resize((config.IMG_SIZE, config.IMG_SIZE)),
-        transforms.RandomResizedCrop(config.CROP_SIZE, scale=(0.8, 1.0)),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=config.NORM_MEAN, std=config.NORM_STD)
-    ])
+    train_transform, val_test_transform = get_transforms()
 
-    val_test_transform = transforms.Compose([
-        transforms.Resize((config.IMG_SIZE, config.IMG_SIZE)),
-        transforms.CenterCrop(config.CROP_SIZE),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=config.NORM_MEAN, std=config.NORM_STD)
-    ])
-
-    # Load the full dataset
     try:
         full_dataset = datasets.ImageFolder(
             root=config.DATA_DIR,
@@ -35,7 +20,7 @@ def get_dataloaders():
         )
     except FileNotFoundError:
         print(f"Error: Data directory not found at {config.DATA_DIR}")
-        print("Please download the WikiArt dataset and place it in that directory.")
+        print("Please download the dataset and place it in that directory.")
         return None, None, None, None
 
     # Get class names
@@ -92,3 +77,27 @@ def get_dataloaders():
     )
 
     return train_loader, val_loader, test_loader, class_names
+
+
+def get_transforms():
+    """
+    Returns the train and validation transforms.
+    """
+    # Augmentation transform for training
+    train_transform = transforms.Compose([
+        transforms.Resize((config.IMG_SIZE, config.IMG_SIZE)),
+        transforms.RandomResizedCrop(config.CROP_SIZE, scale=(0.8, 1.0)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=config.NORM_MEAN, std=config.NORM_STD)
+    ])
+
+    val_test_transform = transforms.Compose([
+        transforms.Resize((config.IMG_SIZE, config.IMG_SIZE)),
+        transforms.CenterCrop(config.CROP_SIZE),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=config.NORM_MEAN, std=config.NORM_STD)
+    ])
+
+    return train_transform, val_test_transform
