@@ -45,15 +45,6 @@ def get_diffusion_pipeline():
     )
     pipe = pipe.to(config.DEVICE)
 
-    try:
-        import xformers
-        pipe.enable_xformers_memory_efficient_attention()
-        print("xformers enabled for memory-efficient attention.")
-    except ImportError:
-        print("xformers not installed. For a significant speed-up, run: pip install xformers")
-        print("Falling back to default attention slicing (slower).")
-        pipe.enable_attention_slicing()
-
     pipe.enable_attention_slicing()
     print("Stable Diffusion pipeline loaded.")
     return pipe
