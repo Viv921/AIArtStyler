@@ -34,10 +34,9 @@ function App() {
   const [page, setPage] = useState<Page>("detect")
   const [detectedStyle, setDetectedStyle] = useState<string | null>(null)
 
-  // This function allows the detector page to send data to the generator page
   const handleStyleDetected = (style: string) => {
     setDetectedStyle(style)
-    setPage("generate") // Switch to the generate page
+    setPage("generate")
   }
 
   return (
@@ -177,7 +176,7 @@ function StyleDetectorPage({ onStyleDetected }: { onStyleDetected: (style: strin
   )
 }
 
-// --- 2. Generator Page (REPLACE this whole function) ---
+// --- 2. Generator Page  ---
 function GeneratorPage({ initialStyle }: { initialStyle: string | null }) {
   const [prompt, setPrompt] = useState("")
   const [styleImage, setStyleImage] = useState<File | null>(null)
@@ -188,20 +187,18 @@ function GeneratorPage({ initialStyle }: { initialStyle: string | null }) {
   const [error, setError] = useState<string | null>(null)
   const [generationMode, setGenerationMode] = useState<"image" | "name">("image")
 
-  // --- NEW: Advanced Options State ---
   const [negativePrompt, setNegativePrompt] = useState("")
   const [negativePrompt2, setNegativePrompt2] = useState("")
   const [width, setWidth] = useState(1024)
   const [height, setHeight] = useState(1024)
   const [steps, setSteps] = useState(50)
   const [guidance, setGuidance] = useState(7.5)
-  const [seed, setSeed] = useState("-1") // Use string for input, -1 for random
+  const [seed, setSeed] = useState("-1")
 
-  // This effect listens for the `initialStyle` prop from the detector page
   useEffect(() => {
     if (initialStyle) {
       setStyleName(initialStyle)
-      setGenerationMode("name") // Switch to the "Style Name" tab
+      setGenerationMode("name")
     }
   }, [initialStyle])
 
@@ -237,17 +234,14 @@ function GeneratorPage({ initialStyle }: { initialStyle: string | null }) {
 
     const formData = new FormData()
 
-    // --- Add ALL fields to FormData ---
     formData.append("prompt", prompt)
 
-    // Basic fields
     if (generationMode === "image" && styleImage) {
       formData.append("style_image", styleImage)
     } else if (generationMode === "name" && styleName) {
       formData.append("style_name", styleName)
     }
 
-    // Advanced fields
     if (negativePrompt) formData.append("negative_prompt", negativePrompt)
     if (negativePrompt2) formData.append("negative_prompt_2", negativePrompt2)
     formData.append("width", width.toString())
@@ -275,7 +269,6 @@ function GeneratorPage({ initialStyle }: { initialStyle: string | null }) {
     }
   }
 
-  // Helper for size selects
   const handleSizeChange = (value: string) => {
     const [w, h] = value.split("x").map(Number);
     setWidth(w);
@@ -442,7 +435,6 @@ function GalleryPage() {
     }
   }
 
-  // Fetch images when component mounts
   useEffect(() => {
     fetchGallery()
   }, [])

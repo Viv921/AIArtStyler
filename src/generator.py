@@ -9,8 +9,23 @@ import argparse
 import os
 
 
-# --- Caching has been REMOVED ---
-# Models will be loaded and unloaded on demand.
+STYLE_MAP = {
+    "Academic_Art": "classical, traditional, high-realism, historical subjects",
+    "Anime": "2D, Japanese animation style, vibrant colors, expressive characters, distinct facial features",
+    "Art_Nouveau": "elegant, decorative, flowing natural forms, intricate lines, curvilinear forms, nature-inspired, ornate, detailed",
+    "Cubism": "geometric abstraction, fragmented objects, multiple viewpoints, analytical",
+    "Cyberpunk": "futuristic, high-tech, neon-lit, dystopian, urban, science fiction",
+    "Expressionism": "raw, emotional, dynamic, distortion for emotional effect, vibrant, use of unusual colors, detailed",
+    "Neoclassicism": "classical antiquity, order, clarity, Greco-Roman influence, somber colors, 18th centure culture",
+    "Primitivism": "raw, naive style, non-Western or prehistoric influence, simple forms",
+    "Renaissance": "classical harmony, realism, perspective, humanism, anatomical accuracy, light and shadow, religious or mythological themes, highly detailed",
+    "Rococo": "ornate, light-hearted, asymmetrical, pastel colors, elaborate, playful, curvaceous",
+    "Romanticism": "emphasis on emotion, individualism, nature's sublime power, dramatic",
+    "Symbolism": "mystical, dreamlike, suggestive, mythological or esoteric themes",
+    "Western_medieval": "religious themes, illuminated manuscripts, gothic, flattened perspective, rich patterns, medieval"
+}
+# Ensure map covers all classes
+assert set(STYLE_MAP.keys()) == set(config.CLASSES), "STYLE_MAP does not match config.CLASSES"
 
 
 def get_style_classifier():
@@ -41,11 +56,10 @@ def get_diffusion_pipeline():
     pipe = StableDiffusionXLPipeline.from_single_file(
         config.STABLE_DIFFUSION_CHECKPOINT,
         torch_dtype=torch.float16,
-        use_safetensors=True
+        use_safensors=True
     )
     pipe = pipe.to(config.DEVICE)
 
-    pipe.enable_attention_slicing()
     print("Stable Diffusion pipeline loaded.")
     return pipe
 
@@ -82,7 +96,6 @@ def predict_style_topk(image_path, k=3):
         print(f"Top predictions: {results}")
 
     finally:
-        # --- UNLOAD THE CLASSIFIER ---
         if classifier:
             del classifier
             torch.cuda.empty_cache()
@@ -95,18 +108,15 @@ def run_generation(
         prompt: str,
         style_image_path: str = None,
         style_name: str = None,
-        # --- New Advanced Options ---
         negative_prompt: str = None,
         negative_prompt_2: str = None,
         width: int = 1024,
         height: int = 1024,
         num_inference_steps: int = 50,
         guidance_scale: float = 7.5,
-        seed: int = -1  # Use -1 as a sentinel for random seed
+        seed: int = -1
 ):
-    """
-    Main logic function that loads/unloads models on demand.
-    """
+
     style_label = None
 
     if style_image_path:
@@ -131,16 +141,19 @@ def run_generation(
     else:
         raise ValueError("Must provide either 'style_image_path' or 'style_name'.")
 
-    # --- At this point, the classifier is NOT in VRAM ---
 
-    # --- Load Diffusion Pipeline ---
     diffusion_pipe = get_diffusion_pipeline()
 
-    output_path = None  # Define output_path before try
+    output_path = None
     try:
+
+        style_description = STYLE_MAP.get(style_label, "style")
+        style_prompt = f"{style_label}, {style_description}"
+
         # --- Prompting ---
-        prompt1 = prompt
-        prompt2 = f"{style_label} style"
+        prompt1 = prompt + f", ({style_prompt}:0.75)"
+        prompt2 = f"({style_prompt}:1.5), " + prompt
+        print("Prompts: ", prompt1, prompt2)
 
         # Use negative prompts if provided
         final_negative_prompt = negative_prompt if negative_prompt else None
@@ -178,7 +191,6 @@ def run_generation(
         print(f"Image saved to: {output_path}")
 
     finally:
-        # --- UNLOAD THE DIFFUSION PIPELINE ---
         if diffusion_pipe:
             del diffusion_pipe
             torch.cuda.empty_cache()
@@ -187,10 +199,10 @@ def run_generation(
     return output_path
 
 
-# Keep the main block for standalone script running
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AI Art Stylizer")
-    parser.add_argument("-p", "--prompt", type=str, required=True, help="Text prompt describing the content (e.g., 'a dog playing chess')")
+    parser.add_argument("-p", "--prompt", type=str, required=True,
+                        help="Text prompt describing the content (e.g., 'a dog playing chess')")
     parser.add_argument("-s", "--style_image", type=str, help="Path to the style reference image.")
     parser.add_argument("-n", "--style_name", type=str, help="Name of the style (e.g., 'Cubism').")
     parser.add_argument("--negative_prompt", type=str, default=None, help="Negative prompt.")
