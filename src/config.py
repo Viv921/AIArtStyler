@@ -9,7 +9,8 @@ OUTPUT_DIR = "../outputs"  # Directory to save generated images
 
 # -- Generator --
 # Can be a Hugging Face model ID or a local path to a downloaded checkpoint/folder
-STABLE_DIFFUSION_CHECKPOINT = "../models/checkpoints/sd_xl_base_10.safetensors"
+# Modify according to downloaded checkpoint
+STABLE_DIFFUSION_CHECKPOINT = "../models/checkpoints/juggernautXL_juggXIByRundiffusion.safetensors"
 STABLE_DIFFUSION_VAE = "../models/vae/sdxl_vae.safetensors"
 
 # -- Compute --
