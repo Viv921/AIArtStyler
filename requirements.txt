@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+torch
+torchvision
+diffusers
+safetensors
+accelerate
+Pillow
+scikit-learn
+pandas
+seaborn
+matplotlib
+tqdm
+numpy
